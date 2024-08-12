@@ -1,13 +1,15 @@
 package main
 
 import (
-	"api/internal/server"
+	"api/internal/adapter/handler/http"
+	"api/internal/adapter/logger"
 	"fmt"
 )
 
 func main() {
+	logger.Set()
 
-	server := server.NewServer()
+	server := http.NewServer()
 
 	err := server.ListenAndServe()
 	if err != nil {
