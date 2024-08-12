@@ -1,4 +1,4 @@
-package database
+package mongodb
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 
 type Service interface {
 	Health() map[string]string
+	Get() *mongo.Client
 }
 
 type service struct {
@@ -23,11 +24,12 @@ type service struct {
 var (
 	host = os.Getenv("DB_HOST")
 	port = os.Getenv("DB_PORT")
-	//database = os.Getenv("DB_DATABASE")
+	user = os.Getenv("DB_USERNAME")
+	pass = os.Getenv("DB_ROOT_PASSWORD")
 )
 
 func New() Service {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s", host, port)))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s", user, pass, host, port)))
 
 	if err != nil {
 		log.Fatal(err)
@@ -36,6 +38,10 @@ func New() Service {
 	return &service{
 		db: client,
 	}
+}
+
+func (s *service) Get() *mongo.Client {
+	return s.db
 }
 
 func (s *service) Health() map[string]string {
@@ -48,6 +54,6 @@ func (s *service) Health() map[string]string {
 	}
 
 	return map[string]string{
-		"message": "It's healthy",
+		"message": "db is healthy",
 	}
 }
